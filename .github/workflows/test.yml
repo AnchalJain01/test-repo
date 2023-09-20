@@ -1,0 +1,67 @@
+
+name: Script compare sf cdc
+ 
+
+on:
+  pull_request:
+    branches:
+      - DE-9663-temp
+    types:
+      - opened
+      - edited
+      - reopened
+  push:
+    branches:
+      - DE-9663-temp
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+
+        - name: checkout repo content
+          uses: actions/checkout@v3
+          with:
+           ref: DE-9663-temp
+           fetch-depth: 0
+
+        # - name: Run multi repo cloning script
+        #   env: 
+        #    PA_TOKEN: ${{ secrets.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 }} # `PAT_SECRET` is a secret that contains your PAT (Personal access token)
+        #   run: ".github/salesforce-cdc-microservice-n.sh"
+        #   shell: bash
+        
+        - name: Use GitHub Token
+          env:
+           SIMPPLR_TOKEN: ${TEST_VAR}
+          run: |
+            echo KEY: '${{SIMPPLR_TOKEN}}'
+
+        # - name: Checkout other repository
+        #   run: |
+        #    git clone https://github.com/simpplr/salesforce-cdc-microservice-n.git ../salesforce-cdc-microservice-n
+        #   working-directory: .
+
+        - name: setup python
+          uses: actions/setup-python@v2
+          with:
+            python-version: 3.11.4
+    
+        - name: Install Python dependencies
+          run: python -m pip install --upgrade pip pandas
+
+        - name: Install requests library
+          run: pip install requests
+
+        - name: Install yaml library
+          run: pip install pyyaml
+
+        - name: Create python script
+          run: |
+            cat > Script_compare_sf_cdc.py <<'EOF'
+            import os
+            print(SIMPPLR_TOKEN)
+            print(os.environ.get('SIMPPLR_TOKEN'))
+
+        - name: Run Python Script
+          run: python .github/workflows/Script_compare_sf_cdc.py
